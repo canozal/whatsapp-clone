@@ -1,0 +1,158 @@
+<div class="d-flex">
+
+    <div class="d-flex flex-column align-items-stretch flex-shrink-0 bg-light"
+         style="width: 380px; height: calc(100vh - 56px)">
+        <a href="/" class="d-flex align-items-center flex-shrink-0 p-3 link-dark text-decoration-none border-bottom">
+            <svg class="bi me-2" width="30" height="24">
+                <use xlink:href="#bootstrap"></use>
+            </svg>
+            <span class="fs-5 fw-semibold">Chat group</span>
+        </a>
+        <div class="list-group list-group-flush border-bottom scrollarea h-100" style="overflow-y: scroll">
+
+            <a href="#" class="list-group-item list-group-item-action py-3 lh-tight" aria-current="true"
+               ng-repeat="x in dumps" ng-class="$index == index ? 'active' : ''" ng-click="changeIndex($index)">
+                <div class="d-flex w-100 align-items-center justify-content-between">
+                    <strong class="mb-1">{{x.type == "PRIVATE" ? x.users[0].username : x.name}}</strong>
+                    <small>{{timeAgo(x.messages[x.messages.length - 1].time)}}</small>
+                </div>
+                <div class="col-10 mb-1 small">{{x.messages[x.messages.length - 1].message}}</div>
+            </a>
+        </div>
+    </div>
+
+
+    <div class="flex-grow-1 d-flex flex-column" style="height: calc(100vh - 56px)">
+
+
+        <div class="bg-warning p-1 d-flex justify-content-start align-items-center">
+            <div class="container d-flex align-items-center">
+                <p class="lead me-5 d-flex">{{dumps[index].type == 'PRIVATE' ? dumps[index].users[0].username : dumps[index].name}}</p>
+                <img
+                        src="http://localhost:8080/res/person_avatars/{{dumps[index].type == 'PRIVATE' ? dumps[index].users[0].imageUrl : dumps[index].imageUrl}}"
+                        class="rounded-circle"
+                        style="width: 50px;"
+                        alt="Avatar"
+                />
+            </div>
+        </div>
+
+
+        <div class="flex-grow-1 pb-2" style="overflow-y: scroll" id="scroll">
+            <div class="d-flex flex-column container mt-3" ng-repeat="message in allMessages">
+            <span ng-class="account.username == message.sender.username ? 'align-self-end' : 'align-self-start'">
+                {{account.username == message.sender.username ? account.username : message.sender.username}}:
+            </span>
+                <div class="p-2 rounded p-2 mb-1"
+                     ng-class="account.username == message.sender.username ? 'align-self-end bg-info' : 'align-self-start bg-warning'"
+                >{{message.message}}
+                </div>
+                <div ng-class="account.username == message.sender.username ? 'align-self-end' : 'd-none'">
+                    <i ng-class="dumps[index].users.length != message.receiverStatus.length
+                    ? 'bi bi-check2' : 'bi bi-check2-all'"></i>
+                    {{dumps[index].users.length}}
+                    {{message.receiverStatus.length}}
+                </div>
+
+            </div>
+        </div>
+
+        <form id="myForm">
+            <div class="input-group input-group-lg">
+                <input type="text" class="form-control" aria-label="Sizing example input"
+                       aria-describedby="inputGroup-sizing-lg" ng-model="message" ng-keyup="typing()"
+                       placeholder="{{placeHolder}}">
+                <button class="btn btn-outline-secondary" type="submit" id="button-addon2"> ></button>
+            </div>
+        </form>
+
+        <input type="button" value="+" style="background-color: #4CAF50;
+              border: none;
+              color: white;
+              width: 50px;
+              height: 50px;
+              border-radius: 50%;
+              text-decoration: none;
+              margin: 4px 2px;
+              cursor: pointer;
+                position: absolute;
+bottom:60px;
+right: 30px" data-bs-toggle="modal" data-bs-target="#exampleModal">
+
+        <input type="button" value="+" style="background-color: #4CAF50;
+              border: none;
+              color: white;
+              width: 50px;
+              height: 50px;
+              border-radius: 50%;
+              text-decoration: none;
+              margin: 4px 2px;
+              cursor: pointer;
+                position: absolute;
+bottom:120px;
+right: 30px" data-bs-toggle="modal" data-bs-target="#groupModal">
+
+
+    </div>
+</div>
+
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Start a conversation</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="exampleInputEmail1" class="form-label">Username</label>
+                    <input type="text" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp"
+                           ng-model="user">
+                    <div id="emailHelp" class="form-text">Enter a username who want to talk</div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="close-private" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" ng-click="startConversation()">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- group Modal -->
+<div class="modal fade" id="groupModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="groupModalLabel">Start a group conversation</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="groupInputEmail1" class="form-label">Group Name</label>
+                    <input type="text" class="form-control" id="groupInputEmail1" aria-describedby="emailHelp"
+                           required ng-model="groupForm.name" ng-init="groupForm = {}"/>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Users</label>
+                    <select class="form-select" multiple aria-label="multiple select example"
+                            ng-model="groupForm.users">
+                        <option value="{{x.username}}" ng-repeat="x in allUsers"
+                                ng-if='x.username != account.username'>{{x.username}}</option>
+                    </select>
+                </div>
+
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="close-group" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" ng-click="startGroupChat(groupForm)">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
